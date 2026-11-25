@@ -3,16 +3,16 @@ import HttpError from "../types/http-error.js";
 import RequestError from "../types/request-error.js";
 import ServerError from "../types/server-error.js";
 import Users from "../model/users.model.js";
-const isNonEmptyString = (value) => typeof value === "string" && value.trim().length > 0;
+import { isNonEmptyString } from "../helper/isNonEmptyString.js";
 class UsersService {
     dbPool;
     constructor(dbPool) {
         this.dbPool = dbPool;
     }
-    async withModel(work) {
+    async withModel(callback) {
         const connection = await this.dbPool.getConnection();
         try {
-            return await work(new Users(connection));
+            return await callback(new Users(connection));
         }
         finally {
             connection.release();
