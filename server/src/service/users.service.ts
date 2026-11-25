@@ -6,6 +6,8 @@ import ServerError from "../types/server-error.js";
 import type { PublicUser, User, UserUpdate } from "../types/user.types.js";
 import Users from "../model/users.model.js";
 
+import bcyrpt from "bcrypt";
+
 import {isNonEmptyString} from "../helper/isNonEmptyString.js"
 
 class UsersService {
@@ -53,7 +55,9 @@ class UsersService {
                 throw new HttpError(409, "A user with this username already exists");
             }
 
-            const id = await users.createUser(user);
+            const hashPassword = await bcyrpt.hash(user.password, 10);
+
+            const id = await users.createUser({...user, password: hashPassword });
             const created = await users.findById(id);
             if (!created) {
                 throw new ServerError(new Error(`User ${id} was not found after insert`), "Failed to retrieve the created user");
@@ -118,5 +122,5 @@ class UsersService {
     }
 }
 
-export const usersService = new UsersService(pool);
+const usersService = new UsersService(pool);
 export default usersService;

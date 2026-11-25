@@ -25,7 +25,8 @@ export const getUser = async (req: Request, res: Response, next: NextFunction): 
 
 export const createUser = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-        const user = await usersService.create(req.body as User);
+        const payload = req.body as User;;
+        const user = await usersService.create({...payload, password: String(payload.password)});
         res.status(201).json(user);
     } catch (error) {
         next(error);
