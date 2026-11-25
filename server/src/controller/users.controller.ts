@@ -35,7 +35,8 @@ export const createUser = async (req: Request, res: Response, next: NextFunction
 
 export const updateUser = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-        const user = await usersService.update(parseId(req.params.id), req.body as UserUpdate);
+        const payload = req.body as UserUpdate;
+        const user = await usersService.update(parseId(req.params.id), payload);
         res.status(200).json(user);
     } catch (error) {
         next(error);

@@ -101,6 +101,11 @@ class UsersService {
                 }
             }
 
+            if(changes.password !== undefined) {
+                changes.password = await bcyrpt.hash(changes.password, 10);
+            }
+            console.log("changes", changes);
+
             await users.updateById(id, changes);
             const updated = await users.findById(id);
             if (!updated) {

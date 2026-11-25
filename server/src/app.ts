@@ -1,7 +1,6 @@
 import express from "express";
 import type { Express } from "express";
 import dotenv from "dotenv";
-import userRoutes from "./routes/users.routes.js";
 import errorMiddleware from "./middleware/error.middleware.js";
 import cookieParser from "cookie-parser";
 import cors from "cors";
@@ -22,11 +21,11 @@ app.use(cors({
 import {checkDatabaseConnection} from "./database/database.conn.js"
 checkDatabaseConnection()
 
-// Routes
-app.get("/", (_req, res) => {
-  res.send("Hello, World!");
-});
+import userRoutes from "./routes/users.routes.js";
+import authRoutes from "./routes/auth.route.js";
 
+// Routes
+app.use("/api/auth/users", authRoutes);
 app.use("/api/users", userRoutes);
 
 app.use(errorMiddleware);
