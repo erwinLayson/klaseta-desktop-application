@@ -20,7 +20,9 @@ export const getUser = async (req, res, next) => {
 };
 export const createUser = async (req, res, next) => {
     try {
-        const user = await usersService.create(req.body);
+        const payload = req.body;
+        ;
+        const user = await usersService.create({ ...payload, password: String(payload.password) });
         res.status(201).json(user);
     }
     catch (error) {

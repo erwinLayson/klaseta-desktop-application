@@ -13,6 +13,6 @@ declare class UsersService {
     update(id: number, changes: UserUpdate): Promise<PublicUser>;
     remove(id: number): Promise<void>;
 }
-export declare const usersService: UsersService;
+declare const usersService: UsersService;
 export default usersService;
 //# sourceMappingURL=users.service.d.ts.map
