@@ -7,9 +7,9 @@ class Users {
 
     async createUser(user: User): Promise<number> {
         try {
-            const { email, password, username } = user;
-            const query = `INSERT INTO users (email, password, username) VALUES (?, ?, ?)`;
-            const [result] = await this.connection.execute<ResultSetHeader>(query, [email, password, username]);
+            const { email, password, username, role } = user;
+            const query = `INSERT INTO users (email, password, username, role) VALUES (?, ?, ?, ?)`;
+            const [result] = await this.connection.execute<ResultSetHeader>(query, [email, password, username, role]);
             return result.insertId;
         }catch(err: any) {
             throw new ServerError(err, "Internal Server Error")
@@ -19,7 +19,7 @@ class Users {
     async findAll(): Promise<PublicUser[]> {
         try {
             const [rows] = await this.connection.execute<RowDataPacket[]>(
-                `SELECT id, email, username FROM users ORDER BY id`
+                `SELECT id, email, username, role FROM users ORDER BY id`
             );
             return rows as PublicUser[];
         }catch(err: any) {
@@ -41,7 +41,7 @@ class Users {
 
     async findByEmail(email: string): Promise<UserRow | null> {
         try {
-            const query = `SELECT id, email, username, password FROM users WHERE email = ?`
+            const query = `SELECT id, email, username, role, password FROM users WHERE email = ?`
             const [rows] = await this.connection.execute<RowDataPacket[]>(
                 query,
                 [email]
@@ -55,7 +55,7 @@ class Users {
     async findByUsername(username: string): Promise<UserRow | null> {
         try {
             const [rows] = await this.connection.execute<RowDataPacket[]>(
-            `SELECT id, email, username, password FROM users WHERE username = ?`,
+            `SELECT id, email, username, role, password FROM users WHERE username = ?`,
                 [username]
             );
             return (rows[0] as UserRow | undefined) ?? null;
@@ -80,6 +80,10 @@ class Users {
             if (changes.password !== undefined) {
                 sets.push("password = ?");
                 values.push(changes.password);
+            }
+            if (changes.role !== undefined) {
+                sets.push("role = ?");
+                values.push(changes.role);
             }
 
             if (sets.length === 0) {
