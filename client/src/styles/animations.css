@@ -27,6 +27,10 @@
     animation: fadeUp 0.65s cubic-bezier(0.22, 1, 0.36, 1) both;
   }
 
+  .animate-step-enter {
+    animation: fadeUp 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
   .animate-float-slow {
     animation: floatSlow 6s ease-in-out infinite;
   }
