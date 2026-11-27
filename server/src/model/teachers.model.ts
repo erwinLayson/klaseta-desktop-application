@@ -22,6 +22,14 @@ const toPublicTeacher = (row: TeacherRowPacket): PublicTeacher => ({
     department: row.department,
 });
 
+const allowUpdateFields = [
+    "user_id",
+    "department",
+    "firstname",
+    "middlename",
+    "lastname",
+];
+
 /** Data-access layer for the `teachers` table; each instance works on one pooled connection. */
 class Teachers {
     /** @param connection - Connection borrowed from the pool for this unit of work. */
@@ -99,25 +107,11 @@ class Teachers {
             const sets: string[] = [];
             const values: (number | string | null)[] = [];
 
-            if (changes.userId !== undefined) {
-                sets.push("user_id = ?");
-                values.push(changes.userId);
-            }
-            if (changes.department !== undefined) {
-                sets.push("department = ?");
-                values.push(changes.department ?? null);
-            }
-            if (changes.firstname !== undefined) {
-                sets.push("firstname = ?");
-                values.push(changes.firstname);
-            }
-            if (changes.middlename !== undefined) {
-                sets.push("middlename = ?");
-                values.push(changes.middlename);
-            }
-            if (changes.lastname !== undefined) {
-                sets.push("lastname = ?");
-                values.push(changes.lastname);
+            for (const [key, value] of Object.entries(changes)) {
+                if (allowUpdateFields.includes(key)) {
+                    sets.push(`${key} = ?`);
+                    values.push(value);
+                }
             }
 
             if (sets.length === 0) {

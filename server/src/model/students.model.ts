@@ -26,6 +26,15 @@ const toPublicStudent = (row: StudentRowPacket): PublicStudent => ({
     lrn: row.lrn,
 });
 
+const allowUpdateFields = [
+    "user_id",
+    "firstname",
+    "middlename",
+    "lastname",
+    "grade_level",
+    "section", "lrn"
+];
+
 /** Data-access layer for the `students` table; each instance works on one pooled connection. */
 class Students {
     /** @param connection - Connection borrowed from the pool for this unit of work. */
@@ -131,33 +140,11 @@ class Students {
             const sets: string[] = [];
             const values: (number | string | null)[] = [];
 
-            if (changes.userId !== undefined) {
-                sets.push("user_id = ?");
-                values.push(changes.userId);
-            }
-            if (changes.firstname !== undefined) {
-                sets.push("firstname = ?");
-                values.push(changes.firstname);
-            }
-            if (changes.middlename !== undefined) {
-                sets.push("middlename = ?");
-                values.push(changes.middlename);
-            }
-            if (changes.lastname !== undefined) {
-                sets.push("lastname = ?");
-                values.push(changes.lastname);
-            }
-            if (changes.gradeLevel !== undefined) {
-                sets.push("grade_level = ?");
-                values.push(changes.gradeLevel ?? null);
-            }
-            if (changes.section !== undefined) {
-                sets.push("section = ?");
-                values.push(changes.section ?? null);
-            }
-            if (changes.lrn !== undefined) {
-                sets.push("lrn = ?");
-                values.push(changes.lrn ?? null);
+            for (const [key, value] of Object.entries(changes)) {
+                if (allowUpdateFields.includes(key)) {
+                    sets.push(`${key} = ?`);
+                    values.push(value);
+                }
             }
 
             if (sets.length === 0) {
