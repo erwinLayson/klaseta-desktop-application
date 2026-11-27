@@ -25,11 +25,13 @@ checkDatabaseConnection()
 import userRoutes from "./routes/users.routes.js";
 import authRoutes from "./routes/auth.route.js";
 import teacherRoutes from "./routes/teachers.routes.js";
+import studentRoutes from "./routes/students.routes.js";
 
 // Routes
 app.use("/api/auth/users", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/teachers", teacherRoutes);
+app.use("/api/students", studentRoutes);
 
 app.use(errorMiddleware);
 
