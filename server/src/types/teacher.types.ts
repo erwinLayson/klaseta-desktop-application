@@ -5,7 +5,7 @@ export type Teacher = {
     lastname: string,
     email: string,
     username: string,
-    password: string,
+    password?: string,
     department?: string | null,
 };
 

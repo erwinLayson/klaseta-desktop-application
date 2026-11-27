@@ -11,11 +11,12 @@ import Users from "../model/users.model.js";
 import bcrypt from "bcrypt";
 
 import { isNonEmptyString } from "../helper/isNonEmptyString.js";
+import isValidEnv from "../helper/isValidEnv.js";
 
 /** Business logic for teachers: validation plus user-link and uniqueness checks. */
 class TeachersService {
     /** @param dbPool - Pool used to borrow a connection for each operation. */
-    constructor(private dbPool: Pool) {}
+    constructor(private dbPool: Pool) { }
 
     /**
      * Runs a callback with both Teachers and Users models on one connection, then releases it.
@@ -106,7 +107,9 @@ class TeachersService {
                 throw new HttpError(409, "A user with this username already exists");
             }
 
-            const passwordHash = await bcrypt.hash(teacher.password, 10);
+            const teacherPassword = teacher.password ? teacher.password : isValidEnv("USER_DEFAULT_PASSWORD");
+            const passwordHash = await bcrypt.hash(teacherPassword, 10);
+
             const userId = await users.createUser({
                 email: teacher.email,
                 username: teacher.username,
