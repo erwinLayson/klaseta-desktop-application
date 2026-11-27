@@ -36,11 +36,11 @@ export const getTeacherByUserId = async (req: Request, res: Response, next: Next
     }
 };
 
-/** POST / - Creates a teacher profile for an existing user and responds with 201. */
+/** POST / - Creates a teacher and its linked user account, responding with 201. */
 export const createTeacher = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
         const payload = req.body as Teacher;
-        const teacher = await teachersService.create({...payload, userId: Number(payload.userId)});
+        const teacher = await teachersService.create(payload);
         res.status(201).json(teacher);
     } catch (error) {
         next(error);

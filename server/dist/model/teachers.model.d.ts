@@ -1,5 +1,5 @@
 import type { PoolConnection } from "mysql2/promise";
-import type { PublicTeacher, Teacher, TeacherUpdate } from "../types/teacher.types.js";
+import type { PublicTeacher, TeacherRecord, TeacherUpdate } from "../types/teacher.types.js";
 /** Data-access layer for the `teachers` table; each instance works on one pooled connection. */
 declare class Teachers {
     private connection;
@@ -7,10 +7,10 @@ declare class Teachers {
     constructor(connection: PoolConnection);
     /**
      * Inserts a teacher profile linked to an existing user.
-     * @param teacher - Teacher name, user link, and optional department.
+     * @param teacher - Teacher name, generated user link, and optional department.
      * @returns The generated teacher id.
      */
-    createTeacher(teacher: Teacher): Promise<number>;
+    createTeacher(teacher: TeacherRecord): Promise<number>;
     /** Returns every teacher, ordered by id. */
     findAll(): Promise<PublicTeacher[]>;
     /**

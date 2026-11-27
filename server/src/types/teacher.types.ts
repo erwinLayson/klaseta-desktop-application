@@ -1,10 +1,17 @@
-/** Data required to create a teacher profile linked to an existing user. */
+/** Data required to create a teacher profile and its linked user account. */
 export type Teacher = {
     firstname: string,
     middlename: string,
     lastname: string,
+    email: string,
+    username: string,
+    password: string,
+    department?: string | null,
+};
+
+/** Teacher row data including the generated user link, used by the data layer. */
+export type TeacherRecord = Teacher & {
     userId: number;
-    department?: string | null;
 };
 
 /** Teacher fields returned by the API. */

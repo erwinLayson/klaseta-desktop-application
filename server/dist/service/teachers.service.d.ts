@@ -10,16 +10,22 @@ declare class TeachersService {
      * @param callback - Work to perform with the models.
      */
     private withModels;
+    /**
+     * Runs a callback with both models in a single transaction, rolling back on any failure.
+     * @param callback - Work to perform before committing.
+     */
+    private withTransaction;
     /** Rejects ids that are not positive integers. */
     private validateId;
-    /** Ensures a create payload has a valid user id and an optional string/null department. */
+    /** Ensures a create payload has the teacher name and credentials needed for the user account. */
     private validateCreate;
     /** Ensures an update payload only contains valid user ids and departments. */
     private validateUpdate;
     /** Ensures a department is a string, `null`, or omitted. */
     private validateDepartment;
     /**
-     * Creates a teacher profile after verifying the linked user exists and has no profile yet.
+     * Creates a user account from the teacher credentials, then the teacher linked to it.
+     * Both inserts share one transaction, so a failed teacher insert rolls the user back.
      * @returns The created teacher.
      */
     create(teacher: Teacher): Promise<PublicTeacher>;

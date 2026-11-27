@@ -1,5 +1,5 @@
 import type { PoolConnection, ResultSetHeader, RowDataPacket } from "mysql2/promise";
-import type { PublicTeacher, Teacher, TeacherUpdate } from "../types/teacher.types.js";
+import type { PublicTeacher, TeacherRecord, TeacherUpdate } from "../types/teacher.types.js";
 import ServerError from "../types/server-error.js";
 
 /** Raw `teachers` row shape as returned by MySQL, using the table's snake_case columns. */
@@ -29,10 +29,10 @@ class Teachers {
 
     /**
      * Inserts a teacher profile linked to an existing user.
-     * @param teacher - Teacher name, user link, and optional department.
+     * @param teacher - Teacher name, generated user link, and optional department.
      * @returns The generated teacher id.
      */
-    async createTeacher(teacher: Teacher): Promise<number> {
+    async createTeacher(teacher: TeacherRecord): Promise<number> {
         try {
             const { userId, department, firstname, middlename, lastname } = teacher;
             const query = `INSERT INTO teachers (user_id, department, firstname, middlename, lastname) VALUES (?, ?, ?, ?, ?)`;

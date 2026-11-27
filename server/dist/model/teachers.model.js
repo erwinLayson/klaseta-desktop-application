@@ -17,7 +17,7 @@ class Teachers {
     }
     /**
      * Inserts a teacher profile linked to an existing user.
-     * @param teacher - Teacher name, user link, and optional department.
+     * @param teacher - Teacher name, generated user link, and optional department.
      * @returns The generated teacher id.
      */
     async createTeacher(teacher) {

@@ -4,8 +4,13 @@ import HttpError from "../types/http-error.js";
 import RequestError from "../types/request-error.js";
 import ServerError from "../types/server-error.js";
 import type { PublicTeacher, Teacher, TeacherUpdate } from "../types/teacher.types.js";
+import { userRoles } from "../types/user.types.js";
 import Teachers from "../model/teachers.model.js";
 import Users from "../model/users.model.js";
+
+import bcrypt from "bcrypt";
+
+import { isNonEmptyString } from "../helper/isNonEmptyString.js";
 
 /** Business logic for teachers: validation plus user-link and uniqueness checks. */
 class TeachersService {
@@ -25,6 +30,27 @@ class TeachersService {
         }
     }
 
+    /**
+     * Runs a callback with both models in a single transaction, rolling back on any failure.
+     * @param callback - Work to perform before committing.
+     */
+    private async withTransaction<T>(callback: (teachers: Teachers, users: Users) => Promise<T>): Promise<T> {
+        const connection = await this.dbPool.getConnection();
+        try {
+            await connection.beginTransaction();
+            try {
+                const result = await callback(new Teachers(connection), new Users(connection));
+                await connection.commit();
+                return result;
+            } catch (error) {
+                await connection.rollback();
+                throw error;
+            }
+        } finally {
+            connection.release();
+        }
+    }
+
     /** Rejects ids that are not positive integers. */
     private validateId(id: number, label: string = "teacher id"): void {
         if (!Number.isInteger(id) || id <= 0) {
@@ -32,10 +58,16 @@ class TeachersService {
         }
     }
 
-    /** Ensures a create payload has a valid user id and an optional string/null department. */
+    /** Ensures a create payload has the teacher name and credentials needed for the user account. */
     private validateCreate(teacher: Teacher): void {
-        if (!teacher || !Number.isInteger(teacher.userId) || teacher.userId <= 0) {
-            throw new RequestError("A valid userId is required");
+        if (!teacher ||
+            !isNonEmptyString(teacher.firstname) ||
+            typeof teacher.middlename !== "string" ||
+            !isNonEmptyString(teacher.lastname) ||
+            !isNonEmptyString(teacher.email) ||
+            !isNonEmptyString(teacher.username) ||
+            !isNonEmptyString(teacher.password)) {
+            throw new RequestError("firstname, middlename, lastname, email, username and password are required");
         }
         this.validateDepartment(teacher.department);
     }
@@ -59,21 +91,30 @@ class TeachersService {
     }
 
     /**
-     * Creates a teacher profile after verifying the linked user exists and has no profile yet.
+     * Creates a user account from the teacher credentials, then the teacher linked to it.
+     * Both inserts share one transaction, so a failed teacher insert rolls the user back.
      * @returns The created teacher.
      */
     async create(teacher: Teacher): Promise<PublicTeacher> {
         this.validateCreate(teacher);
 
-        return this.withModels(async (teachers, users) => {
-            if (!(await users.findById(teacher.userId))) {
-                throw new HttpError(404, "User not found");
+        return this.withTransaction(async (teachers, users) => {
+            if (await users.findByEmail(teacher.email)) {
+                throw new HttpError(409, "A user with this email already exists");
             }
-            if (await teachers.findByUserId(teacher.userId)) {
-                throw new HttpError(409, "A teacher for this user already exists");
+            if (await users.findByUsername(teacher.username)) {
+                throw new HttpError(409, "A user with this username already exists");
             }
 
-            const id = await teachers.createTeacher(teacher);
+            const passwordHash = await bcrypt.hash(teacher.password, 10);
+            const userId = await users.createUser({
+                email: teacher.email,
+                username: teacher.username,
+                password: passwordHash,
+                role: userRoles.TEACHER,
+            });
+
+            const id = await teachers.createTeacher({ ...teacher, userId });
             const created = await teachers.findById(id);
             if (!created) {
                 throw new ServerError(new Error(`Teacher ${id} was not found after insert`), "Failed to retrieve the created teacher");
