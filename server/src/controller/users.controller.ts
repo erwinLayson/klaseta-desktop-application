@@ -2,9 +2,11 @@ import type { NextFunction, Request, Response } from "express";
 import usersService from "../service/users.service.js";
 import type { User, UserUpdate } from "../types/user.types.js";
 
+/** Converts a route parameter string into a number, or `NaN` when it is missing. */
 const parseId = (value: unknown): number =>
     typeof value === "string" && value.trim() !== "" ? Number(value) : NaN;
 
+/** GET / - Responds with the list of all users. */
 export const listUsers = async (_req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
         const users = await usersService.findAll();
@@ -14,6 +16,7 @@ export const listUsers = async (_req: Request, res: Response, next: NextFunction
     }
 };
 
+/** GET /:id - Responds with a single user by id. */
 export const getUser = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
         const user = await usersService.findById(parseId(req.params.id));
@@ -23,6 +26,7 @@ export const getUser = async (req: Request, res: Response, next: NextFunction): 
     }
 };
 
+/** POST / - Creates a user from the JSON request body and responds with 201. */
 export const createUser = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
         const payload = req.body as User;;
@@ -33,6 +37,7 @@ export const createUser = async (req: Request, res: Response, next: NextFunction
     }
 };
 
+/** PATCH /:id - Applies the supplied fields to a user and responds with the update. */
 export const updateUser = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
         const payload = req.body as UserUpdate;
@@ -43,6 +48,7 @@ export const updateUser = async (req: Request, res: Response, next: NextFunction
     }
 };
 
+/** DELETE /:id - Removes a user and responds with 204 when successful. */
 export const deleteUser = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
         await usersService.remove(parseId(req.params.id));

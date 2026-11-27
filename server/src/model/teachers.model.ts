@@ -2,6 +2,7 @@ import type { PoolConnection, ResultSetHeader, RowDataPacket } from "mysql2/prom
 import type { PublicTeacher, Teacher, TeacherUpdate } from "../types/teacher.types.js";
 import ServerError from "../types/server-error.js";
 
+/** Raw `teachers` row shape as returned by MySQL, using the table's snake_case columns. */
 type TeacherRowPacket = RowDataPacket & {
     firstname: string,
     middlename: string,
@@ -11,6 +12,7 @@ type TeacherRowPacket = RowDataPacket & {
     department: string | null;
 };
 
+/** Maps a raw database row to the camelCase `PublicTeacher` shape used by the API. */
 const toPublicTeacher = (row: TeacherRowPacket): PublicTeacher => ({
     firstname: row.firstname,
     middlename: row.middlename,
@@ -20,9 +22,16 @@ const toPublicTeacher = (row: TeacherRowPacket): PublicTeacher => ({
     department: row.department,
 });
 
+/** Data-access layer for the `teachers` table; each instance works on one pooled connection. */
 class Teachers {
+    /** @param connection - Connection borrowed from the pool for this unit of work. */
     constructor(private connection: PoolConnection) { }
 
+    /**
+     * Inserts a teacher profile linked to an existing user.
+     * @param teacher - Teacher name, user link, and optional department.
+     * @returns The generated teacher id.
+     */
     async createTeacher(teacher: Teacher): Promise<number> {
         try {
             const { userId, department, firstname, middlename, lastname } = teacher;
@@ -35,6 +44,7 @@ class Teachers {
         }
     }
 
+    /** Returns every teacher, ordered by id. */
     async findAll(): Promise<PublicTeacher[]> {
         try {
             const [rows] = await this.connection.execute<TeacherRowPacket[]>(
@@ -46,6 +56,10 @@ class Teachers {
         }
     }
 
+    /**
+     * Finds a teacher by primary key.
+     * @returns The teacher, or `null` when no row matches.
+     */
     async findById(id: number): Promise<PublicTeacher | null> {
         try {
             const [rows] = await this.connection.execute<TeacherRowPacket[]>(
@@ -59,6 +73,10 @@ class Teachers {
         }
     }
 
+    /**
+     * Finds the teacher profile associated with a user id.
+     * @returns The teacher, or `null` when the user has no teacher profile.
+     */
     async findByUserId(userId: number): Promise<PublicTeacher | null> {
         try {
             const [rows] = await this.connection.execute<TeacherRowPacket[]>(
@@ -72,6 +90,10 @@ class Teachers {
         }
     }
 
+    /**
+     * Updates only the provided fields of a teacher row.
+     * @returns `true` when at least one row was affected.
+     */
     async updateById(id: number, changes: TeacherUpdate): Promise<boolean> {
         try {
             const sets: string[] = [];
@@ -110,6 +132,10 @@ class Teachers {
         }
     }
 
+    /**
+     * Deletes a teacher row by primary key.
+     * @returns `true` when a row was actually removed.
+     */
     async deleteById(id: number): Promise<boolean> {
         try {
             const [result] = await this.connection.execute<ResultSetHeader>(

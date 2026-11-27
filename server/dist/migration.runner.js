@@ -4,6 +4,12 @@ import { fileURLToPath } from "node:url";
 import { pool } from "./database/database.conn.js";
 const MIGRATIONS_TABLE = "schema_migrations";
 const runnerDir = dirname(fileURLToPath(import.meta.url));
+/**
+ * Locates the directory containing the SQL migration files.
+ * Checks the runner directory and common source layouts, both for dev and compiled runs.
+ * @returns The first directory that contains `.sql` files.
+ * @throws If no migrations directory can be found.
+ */
 const findMigrationsDir = () => {
     const candidates = [
         runnerDir,
@@ -17,6 +23,10 @@ const findMigrationsDir = () => {
     }
     throw new Error(`No SQL migrations directory found. Looked in: ${candidates.join(", ")}`);
 };
+/**
+ * Applies every unapplied SQL migration in order and records it in `schema_migrations`.
+ * Each migration runs in a transaction so a failure rolls back its statements.
+ */
 const runMigrations = async () => {
     const migrationsDir = findMigrationsDir();
     const connection = await pool.getConnection();
@@ -67,6 +77,7 @@ const runMigrations = async () => {
         await pool.end();
     }
 };
+/** Runs the migrations when this module is executed directly. */
 runMigrations().catch((error) => {
     console.error("Migration runner failed:", error);
     process.exitCode = 1;

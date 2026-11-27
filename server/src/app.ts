@@ -1,3 +1,4 @@
+/** Express application setup: shared middleware, database check, and API route mounting. */
 import express from "express";
 import type { Express } from "express";
 import dotenv from "dotenv";
@@ -23,10 +24,12 @@ checkDatabaseConnection()
 
 import userRoutes from "./routes/users.routes.js";
 import authRoutes from "./routes/auth.route.js";
+import teacherRoutes from "./routes/teachers.routes.js";
 
 // Routes
 app.use("/api/auth/users", authRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/teachers", teacherRoutes);
 
 app.use(errorMiddleware);
 

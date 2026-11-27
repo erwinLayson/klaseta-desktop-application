@@ -5,6 +5,7 @@ import type { User } from "../types/user.types.js";
 // Helper function to parse and validate the user payload
 import { normalizeString } from "../helper/normalizeString.js";
 
+/** POST /login - Authenticates credentials and attaches the user to the request. */
 export const authLogin = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
         const { email, password } = req.body as Omit<User, "id" | "role" | "username">;

@@ -5,11 +5,17 @@ import ServerError from "../types/server-error.js";
 import Users from "../model/users.model.js";
 import bcyrpt from "bcrypt";
 import { isNonEmptyString } from "../helper/isNonEmptyString.js";
+/** Business logic for users: validation, uniqueness checks, and password hashing. */
 class UsersService {
     dbPool;
+    /** @param dbPool - Pool used to borrow a connection for each operation. */
     constructor(dbPool) {
         this.dbPool = dbPool;
     }
+    /**
+     * Runs a callback against a Users model, always releasing the connection afterwards.
+     * @param callback - Work to perform with the model.
+     */
     async withModel(callback) {
         const connection = await this.dbPool.getConnection();
         try {
@@ -19,16 +25,19 @@ class UsersService {
             connection.release();
         }
     }
+    /** Rejects ids that are not positive integers. */
     validateId(id) {
         if (!Number.isInteger(id) || id <= 0) {
             throw new RequestError("Invalid user id");
         }
     }
+    /** Ensures email, username and password are present before creating a user. */
     validateCreate(user) {
         if (!isNonEmptyString(user?.email) || !isNonEmptyString(user?.username) || !isNonEmptyString(user?.password)) {
             throw new RequestError("email, username and password are required");
         }
     }
+    /** Ensures any supplied update fields are non-empty strings. */
     validateUpdate(changes) {
         if ((changes.email !== undefined && !isNonEmptyString(changes.email)) ||
             (changes.username !== undefined && !isNonEmptyString(changes.username)) ||
@@ -36,6 +45,10 @@ class UsersService {
             throw new RequestError("Provided fields must be non-empty strings");
         }
     }
+    /**
+     * Creates a user with a hashed password after checking email/username uniqueness.
+     * @returns The created user without its password.
+     */
     async create(user) {
         this.validateCreate(user);
         return this.withModel(async (users) => {
@@ -54,9 +67,14 @@ class UsersService {
             return created;
         });
     }
+    /** Lists all users without password fields. */
     async findAll() {
         return this.withModel((users) => users.findAll());
     }
+    /**
+     * Retrieves a user by id.
+     * @throws HttpError 404 when the user does not exist.
+     */
     async findById(id) {
         this.validateId(id);
         const user = await this.withModel((users) => users.findById(id));
@@ -65,6 +83,10 @@ class UsersService {
         }
         return user;
     }
+    /**
+     * Applies validated changes to a user, rechecking uniqueness and hashing new passwords.
+     * @returns The updated user without its password.
+     */
     async update(id, changes) {
         this.validateId(id);
         this.validateUpdate(changes);
@@ -84,6 +106,10 @@ class UsersService {
                     throw new HttpError(409, "A user with this username already exists");
                 }
             }
+            if (changes.password !== undefined) {
+                changes.password = await bcyrpt.hash(changes.password, 10);
+            }
+            console.log("changes", changes);
             await users.updateById(id, changes);
             const updated = await users.findById(id);
             if (!updated) {
@@ -92,6 +118,7 @@ class UsersService {
             return updated;
         });
     }
+    /** Removes a user by id, throwing 404 when it does not exist. */
     async remove(id) {
         this.validateId(id);
         await this.withModel(async (users) => {
@@ -102,6 +129,7 @@ class UsersService {
         });
     }
 }
+/** Shared service instance bound to the application connection pool. */
 const usersService = new UsersService(pool);
 export default usersService;
 //# sourceMappingURL=users.service.js.map
