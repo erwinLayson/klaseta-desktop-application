@@ -1,0 +1,87 @@
+/* Dedicated animation & transition definitions (compositor-friendly transform/opacity). */
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes floatSlow {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+/* Entrance animations opt-in when motion is allowed, ensuring static final state otherwise. */
+@media (prefers-reduced-motion: no-preference) {
+  .animate-fade-up {
+    animation: fadeUp 0.65s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .animate-float-slow {
+    animation: floatSlow 6s ease-in-out infinite;
+  }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(20px);
+    transition:
+      opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .reveal.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .delay-100 {
+    animation-delay: 100ms;
+    transition-delay: 100ms;
+  }
+
+  .delay-200 {
+    animation-delay: 200ms;
+    transition-delay: 200ms;
+  }
+
+  .delay-300 {
+    animation-delay: 300ms;
+    transition-delay: 300ms;
+  }
+
+  .delay-400 {
+    animation-delay: 400ms;
+    transition-delay: 400ms;
+  }
+}
+
+/* Card micro-interaction: subtle lift without layout shift. */
+.card-hover {
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease,
+    border-color 0.25s ease;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .card-hover:hover {
+    transform: translateY(-4px);
+  }
+}
+
+/* Mobile menu panel reveal transition. */
+.mobile-menu-panel {
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+}
