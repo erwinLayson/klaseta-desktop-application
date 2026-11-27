@@ -19,20 +19,20 @@ export const authLogin = async (userPayload: Omit<User, "id" | "role" | "usernam
         const user = await userModel.findByEmail(userPayload.email);
         console.log("user", user)
         if (user === null) {
-            throw new httpErrors(401, "Invalid email");
+            throw new httpErrors(401, "Invalid email or password");
         }
 
         const isPasswordValid = await bcrypt.compare(userPayload.password, user.password);
         console.log("isPasswordValid", isPasswordValid)
         if (!isPasswordValid) {
-            throw new httpErrors(401, "Invalid password");
+            throw new httpErrors(401, "Invalid email or password");
         }
 
         const { password: _, ...userWithoutPassword } = user;
         return userWithoutPassword;
     } catch (error) {
         throw error;
-    }finally {
+    } finally {
         connection.release();
     }
 }

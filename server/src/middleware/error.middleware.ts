@@ -4,7 +4,7 @@ import RequestError from "../types/request-error.js";
 import ServerError from "../types/server-error.js";
 
 /** Express error handler that maps application errors to JSON HTTP responses. */
-const errorMiddleware: ErrorRequestHandler = (err, _req, res, _next) => {
+export const errorMiddleware: ErrorRequestHandler = (err, _req, res, _next) => {
   if (err instanceof RequestError) {
     res.status(err.statusCode).json({ error: err.message });
     return;
@@ -26,4 +26,3 @@ const errorMiddleware: ErrorRequestHandler = (err, _req, res, _next) => {
   res.status(serverError.statusCode).json({ error: serverError.message });
 };
 
-export default errorMiddleware;

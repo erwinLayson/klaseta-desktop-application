@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import jwt from "jsonwebtoken";
 import type { Request, Response, NextFunction } from "express";
-import errorMiddleware from "../middleware/error.middleware.js";
-import { verifyToken } from "../middleware/auth.middleware.js";
+import { errorMiddleware, verifyToken, allowRoles } from "../middleware/index.js";
+import { userRoles } from "../types/user.types.js";
 import HttpError from "../types/http-error.js";
 import RequestError from "../types/request-error.js";
 import ServerError from "../types/server-error.js";
@@ -47,7 +47,7 @@ describe("Middleware Unit Tests", () => {
         });
 
         it("should format ServerError with status 500", () => {
-            const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+            const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => { });
             const res = createMockResponse();
             const error = new ServerError(new Error("Database disconnected"));
 
@@ -59,7 +59,7 @@ describe("Middleware Unit Tests", () => {
         });
 
         it("should handle unexpected non-HttpError by converting to status 500 ServerError", () => {
-            const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+            const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => { });
             const res = createMockResponse();
             const rawError = new Error("Unexpected crash");
 
@@ -148,6 +148,64 @@ describe("Middleware Unit Tests", () => {
             expect(req.user?.id).toBe(1);
             expect(req.user?.email).toBe("test@example.com");
             expect(req.user?.role).toBe("teacher");
+        });
+    });
+
+    describe("allowRoles", () => {
+        const mockRes = createMockResponse();
+
+        it("should return 401 HttpError when req.user is undefined", () => {
+            const req = {} as Request;
+            const middleware = allowRoles([userRoles.TEACHER]);
+            let nextError: unknown;
+
+            middleware(req, mockRes, ((err?: unknown) => {
+                nextError = err;
+            }) as NextFunction);
+
+            expect(nextError).toBeInstanceOf(HttpError);
+            expect((nextError as HttpError).statusCode).toBe(401);
+            expect((nextError as HttpError).message).toBe("Authentication required");
+        });
+
+        it("should return 403 HttpError when user role is not allowed", () => {
+            const req = {
+                user: { id: 1, email: "s@test.com", username: "s", role: userRoles.STUDENT }
+            } as Request;
+            const middleware = allowRoles([userRoles.TEACHER]);
+            let nextError: unknown;
+
+            middleware(req, mockRes, ((err?: unknown) => {
+                nextError = err;
+            }) as NextFunction);
+
+            expect(nextError).toBeInstanceOf(HttpError);
+            expect((nextError as HttpError).statusCode).toBe(403);
+            expect((nextError as HttpError).message).toBe("Access denied: insufficient permissions");
+        });
+
+        it("should call next() without error when user has an allowed role", () => {
+            const req = {
+                user: { id: 1, email: "t@test.com", username: "t", role: userRoles.TEACHER }
+            } as Request;
+            const middleware = allowRoles([userRoles.TEACHER]);
+            const nextSpy = vi.fn();
+
+            middleware(req, mockRes, nextSpy as unknown as NextFunction);
+
+            expect(nextSpy).toHaveBeenCalledWith();
+        });
+
+        it("should support multiple allowed roles passed as arguments or array", () => {
+            const req = {
+                user: { id: 2, email: "s@test.com", username: "s", role: userRoles.STUDENT }
+            } as Request;
+            const middleware = allowRoles([userRoles.TEACHER, userRoles.STUDENT]);
+            const nextSpy = vi.fn();
+
+            middleware(req, mockRes, nextSpy as unknown as NextFunction);
+
+            expect(nextSpy).toHaveBeenCalledWith();
         });
     });
 });

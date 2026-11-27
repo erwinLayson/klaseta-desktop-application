@@ -34,4 +34,4 @@ export const userRoles = {
 } as const;
 
 /** Union of all values declared in {@link userRoles}. */
-export type UserRole = typeof userRoles[keyof typeof userRoles];
+export type UserRole = (typeof userRoles)[keyof typeof userRoles];

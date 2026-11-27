@@ -8,7 +8,7 @@ import type { PublicUser } from "../types/user.types.js";
  * Verifies the JWT stored in the `token` cookie and attaches its payload to `req.user`.
  * Responds with 401 when the cookie is missing, malformed, invalid, or expired.
  */
-const verifyToken: RequestHandler = (req, _res, next) => {
+export const verifyToken: RequestHandler = (req, _res, next) => {
   const token = req.cookies?.token;
 
   if (typeof token !== "string" || token.trim() === "") {
@@ -28,6 +28,3 @@ const verifyToken: RequestHandler = (req, _res, next) => {
     }));
   }
 };
-
-export { verifyToken };
-export default verifyToken;

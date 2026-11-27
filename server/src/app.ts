@@ -2,7 +2,7 @@
 import express from "express";
 import type { Express } from "express";
 import dotenv from "dotenv";
-import errorMiddleware from "./middleware/error.middleware.js";
+import { errorMiddleware } from "./middleware/index.js";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 
@@ -19,7 +19,7 @@ app.use(cors({
 }));
 
 // Check database connection
-import {checkDatabaseConnection} from "./database/database.conn.js"
+import { checkDatabaseConnection } from "./database/database.conn.js"
 checkDatabaseConnection()
 
 import userRoutes from "./routes/users.routes.js";
