@@ -1,4 +1,4 @@
-import type { Pool } from "mysql2/promise";
+import type { Pool, PoolConnection } from "mysql2/promise";
 import { pool } from "../database/database.conn.js";
 import HttpError from "../types/http-error.js";
 import RequestError from "../types/request-error.js";
@@ -6,9 +6,7 @@ import ServerError from "../types/server-error.js";
 import type { PublicTeacher, Teacher, TeacherUpdate } from "../types/teacher.types.js";
 import { userRoles } from "../types/user.types.js";
 import Teachers from "../model/teachers.model.js";
-import Users from "../model/users.model.js";
-
-import bcrypt from "bcrypt";
+import UserService from "./users.service.js"
 
 import { isNonEmptyString } from "../helper/isNonEmptyString.js";
 import isValidEnv from "../helper/isValidEnv.js";
@@ -22,10 +20,10 @@ class TeachersService {
      * Runs a callback with both Teachers and Users models on one connection, then releases it.
      * @param callback - Work to perform with the models.
      */
-    private async withModels<T>(callback: (teachers: Teachers, users: Users) => Promise<T>): Promise<T> {
+    private async withModels<T>(callback: (teachers: Teachers) => Promise<T>): Promise<T> {
         const connection = await this.dbPool.getConnection();
         try {
-            return await callback(new Teachers(connection), new Users(connection));
+            return await callback(new Teachers(connection));
         } finally {
             connection.release();
         }
@@ -35,12 +33,12 @@ class TeachersService {
      * Runs a callback with both models in a single transaction, rolling back on any failure.
      * @param callback - Work to perform before committing.
      */
-    private async withTransaction<T>(callback: (teachers: Teachers, users: Users) => Promise<T>): Promise<T> {
+    private async withTransaction<T>(callback: (teachers: Teachers, conn: PoolConnection) => Promise<T>): Promise<T> {
         const connection = await this.dbPool.getConnection();
         try {
             await connection.beginTransaction();
             try {
-                const result = await callback(new Teachers(connection), new Users(connection));
+                const result = await callback(new Teachers(connection), connection);
                 await connection.commit();
                 return result;
             } catch (error) {
@@ -99,22 +97,23 @@ class TeachersService {
     async create(teacher: Teacher): Promise<PublicTeacher> {
         this.validateCreate(teacher);
 
-        return this.withTransaction(async (teachers, users) => {
-            if (await users.findByEmail(teacher.email)) {
+        return this.withTransaction(async (teachers) => {
+
+
+            if (await UserService.findByEmail(teacher.email)) {
                 throw new HttpError(409, "A user with this email already exists");
             }
-            if (await users.findByUsername(teacher.username)) {
+            if (await UserService.findByUsername(teacher.username)) {
                 throw new HttpError(409, "A user with this username already exists");
             }
 
             const teacherPassword = teacher.password ? teacher.password : isValidEnv("USER_DEFAULT_PASSWORD");
-            const passwordHash = await bcrypt.hash(teacherPassword, 10);
 
-            const userId = await users.createUser({
+            const { id: userId } = await UserService.create({
+                ...teacher, password: teacherPassword,
+                role: userRoles.TEACHER,
                 email: teacher.email,
                 username: teacher.username,
-                password: passwordHash,
-                role: userRoles.TEACHER,
             });
 
             const id = await teachers.createTeacher({ ...teacher, userId });
@@ -165,14 +164,14 @@ class TeachersService {
         this.validateId(id);
         this.validateUpdate(changes);
 
-        return this.withModels(async (teachers, users) => {
+        return this.withModels(async (teachers) => {
             const existing = await teachers.findById(id);
             if (!existing) {
                 throw new HttpError(404, "Teacher not found");
             }
 
             if (changes.userId !== undefined && changes.userId !== existing.userId) {
-                if (!(await users.findById(changes.userId))) {
+                if (!(await UserService.findById(changes.userId))) {
                     throw new HttpError(404, "User not found");
                 }
                 const duplicate = await teachers.findByUserId(changes.userId);

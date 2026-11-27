@@ -1,4 +1,4 @@
-import type { Pool } from "mysql2/promise";
+import type { Pool, PoolConnection } from "mysql2/promise";
 import { pool } from "../database/database.conn.js";
 import HttpError from "../types/http-error.js";
 import RequestError from "../types/request-error.js";
@@ -8,23 +8,26 @@ import Users from "../model/users.model.js";
 
 import bcyrpt from "bcrypt";
 
-import {isNonEmptyString} from "../helper/isNonEmptyString.js"
+import { isNonEmptyString } from "../helper/isNonEmptyString.js"
 
 /** Business logic for users: validation, uniqueness checks, and password hashing. */
 class UsersService {
     /** @param dbPool - Pool used to borrow a connection for each operation. */
-    constructor(private dbPool: Pool) {}
+    constructor(private dbPool: Pool) { }
 
     /**
      * Runs a callback against a Users model, always releasing the connection afterwards.
      * @param callback - Work to perform with the model.
      */
-    private async withModel<T>(callback: (users: Users) => Promise<T>): Promise<T> {
-        const connection = await this.dbPool.getConnection();
+    private async withModel<T>(callback: (users: Users) => Promise<T>, existingConnection?: PoolConnection): Promise<T> {
+        const connection = existingConnection ?? await this.dbPool.getConnection();
+        const ownConn = !existingConnection;
+
         try {
             return await callback(new Users(connection));
         } finally {
-            connection.release();
+            if (ownConn)
+                connection.release();
         }
     }
 
@@ -70,7 +73,7 @@ class UsersService {
 
             const hashPassword = await bcyrpt.hash(user.password, 10);
 
-            const id = await users.createUser({...user, password: hashPassword });
+            const id = await users.createUser({ ...user, password: hashPassword });
             const created = await users.findById(id);
             if (!created) {
                 throw new ServerError(new Error(`User ${id} was not found after insert`), "Failed to retrieve the created user");
@@ -91,6 +94,22 @@ class UsersService {
     async findById(id: number): Promise<PublicUser> {
         this.validateId(id);
         const user = await this.withModel((users) => users.findById(id));
+        if (!user) {
+            throw new HttpError(404, "User not found");
+        }
+        return user;
+    }
+
+    async findByEmail(email: string): Promise<PublicUser> {
+        const user = await this.withModel((users) => users.findByEmail(email));
+        if (!user) {
+            throw new HttpError(404, "User not found");
+        }
+        return user;
+    }
+
+    async findByUsername(username: string): Promise<PublicUser> {
+        const user = await this.withModel((users) => users.findByUsername(username));
         if (!user) {
             throw new HttpError(404, "User not found");
         }
@@ -123,7 +142,7 @@ class UsersService {
                 }
             }
 
-            if(changes.password !== undefined) {
+            if (changes.password !== undefined) {
                 changes.password = await bcyrpt.hash(changes.password, 10);
             }
             console.log("changes", changes);
