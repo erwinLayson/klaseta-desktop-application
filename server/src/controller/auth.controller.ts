@@ -22,9 +22,10 @@ export const authLogin = async (req: Request, res: Response, next: NextFunction)
 
         const token = jwt.sign(
             {
-                userId: user.id,
+                id: user.id,
                 role: user.role,
-                username: user.username
+                username: user.username,
+                email: user.email
             },
             isValidEnv("JWT_SECRET"),
             {
@@ -40,6 +41,29 @@ export const authLogin = async (req: Request, res: Response, next: NextFunction)
         })
 
         res.status(200).json(user);
+    } catch (error) {
+        next(error);
+    }
+}
+
+/** GET /me - Responds with the authenticated user attached by verifyToken. */
+export const authMe = (req: Request, res: Response, next: NextFunction): void => {
+    try {
+        res.status(200).json(req.user);
+    } catch (error) {
+        next(error);
+    }
+}
+
+/** POST /logout - Clears the login session cookie. */
+export const authLogout = (_req: Request, res: Response, next: NextFunction): void => {
+    try {
+        res.clearCookie(isValidEnv("LOGIN_SESSION"), {
+            httpOnly: true,
+            secure: isValidEnv("NODE_ENV") === "production",
+            sameSite: isValidEnv("NODE_ENV") === "production" ? "none" : "lax"
+        });
+        res.status(200).json({ message: "Signed out" });
     } catch (error) {
         next(error);
     }

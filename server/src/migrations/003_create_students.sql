@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS students (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    user_id BIGINT UNSIGNED NOT NULL UNIQUE,
+    user_id BIGINT NOT NULL UNIQUE,
     firstname VARCHAR(100),
     middlename VARCHAR(100),
     lastname VARCHAR(100),

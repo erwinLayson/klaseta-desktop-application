@@ -6,6 +6,7 @@ interface AuthLayoutProps {
   headline: string;
   description: string;
   children: ReactNode;
+  contentClassName?: string;
 }
 
 const BRAND_HIGHLIGHTS = [
@@ -28,11 +29,12 @@ export function AuthLayout({
   headline,
   description,
   children,
+  contentClassName = "w-full max-w-lg",
 }: AuthLayoutProps) {
   return (
-    <div className="min-h-screen bg-[#FBFDFD] text-[#3C4044] lg:grid lg:grid-cols-12">
+    <div className="h-dvh overflow-hidden bg-[#FBFDFD] text-[#3C4044] lg:grid lg:grid-cols-12">
       {/* Desktop Left Branding Panel */}
-      <aside className="relative hidden flex-col justify-between overflow-hidden border-r border-[#DDE9F0] bg-[#EBF6FB] p-10 lg:col-span-5 lg:flex xl:p-14">
+      <aside className="relative hidden flex-col justify-between overflow-hidden border-r border-[#DDE9F0] bg-[#EBF6FB] p-7 lg:col-span-5 lg:flex xl:p-8">
         <div
           aria-hidden="true"
           className="pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full bg-[#BAD5ED]/45"
@@ -59,22 +61,22 @@ export function AuthLayout({
           </Link>
         </div>
 
-        <div className="relative my-auto space-y-6 py-10">
+        <div className="relative my-auto space-y-3 py-4">
           <span className="inline-block rounded-full border border-[#BAD5ED] bg-[#FBFDFD] px-3.5 py-1 text-xs font-semibold uppercase tracking-wider text-[#3A66B2]">
             {badge}
           </span>
-          <h2 className="text-3xl font-bold leading-tight tracking-tight text-[#3C4044] xl:text-4xl">
+          <h2 className="text-2xl font-bold leading-tight tracking-tight text-[#3C4044] xl:text-3xl">
             {headline}
           </h2>
-          <p className="max-w-md text-base leading-relaxed text-[#5C6670]">
+          <p className="max-w-md text-sm leading-relaxed text-[#5C6670]">
             {description}
           </p>
 
-          <ul className="space-y-4 pt-2">
+          <ul className="space-y-2.5 pt-1">
             {BRAND_HIGHLIGHTS.map((item) => (
               <li
                 key={item.title}
-                className="flex items-start gap-3.5 rounded-xl border border-[#DDE9F0] bg-[#FBFDFD]/90 p-4 shadow-2xs"
+                className="flex items-start gap-3.5 rounded-xl border border-[#DDE9F0] bg-[#FBFDFD]/90 p-3 shadow-2xs"
               >
                 <span
                   aria-hidden="true"
@@ -101,7 +103,7 @@ export function AuthLayout({
       </aside>
 
       {/* Right / Mobile Main Auth Column */}
-      <div className="flex min-h-screen flex-col lg:col-span-7">
+      <div className="flex h-dvh min-h-0 flex-col lg:col-span-7">
         {/* Compact Mobile Header */}
         <header className="border-b border-[#DDE9F0] bg-[#FBFDFD] lg:hidden">
           <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
@@ -122,8 +124,10 @@ export function AuthLayout({
           </div>
         </header>
 
-        <main className="flex flex-1 items-center justify-center px-6 py-10 sm:px-10 lg:py-14">
-          <div className="animate-fade-up w-full max-w-lg">{children}</div>
+        <main className="auth-scroll flex min-h-0 flex-1 justify-center overflow-y-auto px-6 py-5 sm:px-10 sm:py-6 lg:py-8">
+          <div className={`animate-fade-up my-auto ${contentClassName}`}>
+            {children}
+          </div>
         </main>
       </div>
     </div>

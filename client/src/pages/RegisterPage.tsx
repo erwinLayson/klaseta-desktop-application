@@ -1,25 +1,53 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState, type FormEvent } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { AuthLayout } from "../components/auth/AuthLayout";
 import { PasswordInput } from "../components/auth/PasswordInput";
+import { useAuth } from "../hooks/useAuth";
 
 type AccountType = "personal" | "administrative";
 
 export function RegisterPage() {
   const [step, setStep] = useState<1 | 2>(1);
   const [accountType, setAccountType] = useState<AccountType | null>(null);
+  const { register, isLoading, error } = useAuth();
+  const navigate = useNavigate();
+  const [submitError, setSubmitError] = useState<string | null>(null);
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    setSubmitError(null);
+
+    try {
+      await register({
+        firstname: String(formData.get("firstname") ?? ""),
+        middlename: String(formData.get("middlename") ?? ""),
+        lastname: String(formData.get("lastname") ?? ""),
+        email: String(formData.get("email") ?? ""),
+        username: String(formData.get("username") ?? ""),
+        password: String(formData.get("password") ?? ""),
+        department: String(formData.get("department") ?? "") || undefined,
+      });
+      navigate("/", { replace: true });
+    } catch (err) {
+      setSubmitError(
+        err instanceof Error ? err.message : "Unable to create your account.",
+      );
+    }
+  }
 
   return (
     <AuthLayout
       badge="Teacher Onboarding"
       headline="Set up your Klaseta teacher workspace."
       description="Create your teacher profile to organize classrooms, manage subject assignments, and keep student records structured."
+      contentClassName="w-full"
     >
-      <div className="rounded-2xl border border-[#DDE9F0] bg-[#FBFDFD] p-7 shadow-sm sm:p-9">
+      <div className="w-full">
         {/* Step Progress Indicator */}
         <div
           aria-label="Registration steps"
-          className="mb-7 flex items-center justify-between gap-3 border-b border-[#DDE9F0] pb-5"
+          className="mb-5 flex items-center justify-between gap-3 border-b border-[#DDE9F0] pb-4"
         >
           <div className="flex items-center gap-2.5">
             <span
@@ -73,7 +101,7 @@ export function RegisterPage() {
               </p>
             </div>
 
-            <div className="mt-6 space-y-3.5">
+            <div className="mt-5 space-y-3">
               <button
                 type="button"
                 aria-pressed={accountType === "personal"}
@@ -137,7 +165,7 @@ export function RegisterPage() {
             <button
               type="button"
               onClick={() => setStep(1)}
-              className="mb-4 inline-flex items-center gap-1.5 rounded-md text-xs font-semibold text-[#3A66B2] hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#5D8DD4]"
+              className="mb-3 inline-flex items-center gap-1.5 rounded-md text-xs font-semibold text-[#3A66B2] hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#5D8DD4]"
             >
               <span aria-hidden="true">←</span>
               Back to account type
@@ -184,9 +212,9 @@ export function RegisterPage() {
                   </p>
                 </div>
 
-                <form className="mt-6 space-y-6">
+                <form onSubmit={handleSubmit} className="mt-5 space-y-4">
                   {/* Group 1: Personal Information */}
-                  <fieldset className="space-y-4">
+                  <fieldset className="space-y-3">
                     <legend className="text-xs font-semibold uppercase tracking-wider text-[#3A66B2]">
                       Personal Information
                     </legend>
@@ -273,7 +301,7 @@ export function RegisterPage() {
                   </fieldset>
 
                   {/* Group 2: Account Credentials */}
-                  <fieldset className="space-y-4 border-t border-[#DDE9F0] pt-5">
+                  <fieldset className="space-y-3 border-t border-[#DDE9F0] pt-4">
                     <legend className="text-xs font-semibold uppercase tracking-wider text-[#3A66B2]">
                       Account Credentials
                     </legend>
@@ -346,11 +374,21 @@ export function RegisterPage() {
                     </div>
                   </fieldset>
 
+                  {submitError || error ? (
+                    <p
+                      role="alert"
+                      className="rounded-lg border border-[#E4B9B9] bg-[#FDF3F3] px-3.5 py-2.5 text-sm text-[#A33A3A]"
+                    >
+                      {submitError ?? error}
+                    </p>
+                  ) : null}
+
                   <button
                     type="submit"
-                    className="w-full rounded-lg bg-[#5D8DD4] px-4 py-2.5 text-sm font-semibold text-white shadow-xs transition-colors hover:bg-[#3A66B2] active:bg-[#3A66B2] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3A66B2]"
+                    disabled={isLoading}
+                    className="w-full rounded-lg bg-[#5D8DD4] px-4 py-2.5 text-sm font-semibold text-white shadow-xs transition-colors hover:bg-[#3A66B2] active:bg-[#3A66B2] disabled:cursor-not-allowed disabled:bg-[#BAD5ED] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3A66B2]"
                   >
-                    Create Account
+                    {isLoading ? "Creating account…" : "Create Account"}
                   </button>
                 </form>
               </>
@@ -358,7 +396,7 @@ export function RegisterPage() {
           </div>
         )}
 
-        <p className="mt-6 border-t border-[#DDE9F0] pt-5 text-center text-sm text-[#5C6670]">
+        <p className="mt-5 border-t border-[#DDE9F0] pt-4 text-center text-sm text-[#5C6670]">
           Already have an account?{" "}
           <Link
             to="/login"

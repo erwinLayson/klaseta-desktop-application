@@ -1,8 +1,50 @@
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { AuthLayout } from "../components/auth/AuthLayout";
 import { PasswordInput } from "../components/auth/PasswordInput";
+import { api } from "../api/fetchAPI";
+
+type loginCredentials = {
+  email: string;
+  password: string;
+};
 
 export function LoginPage() {
+  const navigate = useNavigate();
+
+  const [loginCredential, setLoginCredential] = useState<loginCredentials>({
+    email: "",
+    password: "",
+  });
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleCredentialChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = event.target;
+    setLoginCredential((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleLoginSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    for (const key in loginCredential) {
+      console.log(key);
+      if (!loginCredential[key as keyof loginCredentials]) {
+        return alert(`${key} is required`);
+      }
+    }
+
+    try {
+      setIsLoading(true)
+      const response = await api.post("auth/users/login", loginCredential)
+      console.log(response.data);
+    } catch (err) {
+      throw err
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+
   return (
     <AuthLayout
       badge="Welcome Back"
@@ -19,7 +61,7 @@ export function LoginPage() {
           </p>
         </div>
 
-        <form className="mt-7 space-y-5">
+        <form onSubmit={handleLoginSubmit} className="mt-7 space-y-5">
           <div className="space-y-1.5">
             <label
               htmlFor="login-email"
@@ -35,25 +77,21 @@ export function LoginPage() {
               spellCheck={false}
               enterKeyHint="next"
               required
+              value={loginCredential.email}
+              onChange={handleCredentialChange}
               placeholder="you@school.edu"
               className="w-full rounded-lg border border-[#DDE9F0] bg-[#FBFDFD] px-3.5 py-2.5 text-sm text-[#3C4044] placeholder:text-[#A1AEB8] transition-colors focus:border-[#5D8DD4] focus:outline-2 focus:outline-offset-0 focus:outline-[#BAD5ED]"
             />
           </div>
 
           <div className="space-y-1.5">
-            <div className="flex items-center justify-between gap-2">
+            <div className="block">
               <label
                 htmlFor="login-password"
                 className="block text-sm font-medium text-[#3C4044]"
               >
                 Password
               </label>
-              <a
-                href="#forgot-password"
-                className="text-xs font-medium text-[#3A66B2] hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#5D8DD4]"
-              >
-                Forgot password?
-              </a>
             </div>
             <PasswordInput
               id="login-password"
@@ -61,14 +99,17 @@ export function LoginPage() {
               autoComplete="current-password"
               placeholder="Enter your password"
               enterKeyHint="done"
+              value={loginCredential.password}
+              onChange={handleCredentialChange}
             />
           </div>
 
           <button
             type="submit"
-            className="w-full rounded-lg bg-[#5D8DD4] px-4 py-2.5 text-sm font-semibold text-white shadow-xs transition-colors hover:bg-[#3A66B2] active:bg-[#3A66B2] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3A66B2]"
+            disabled={isLoading}
+            className="w-full rounded-lg bg-[#5D8DD4] px-4 py-2.5 text-sm font-semibold text-white shadow-xs transition-colors hover:bg-[#3A66B2] active:bg-[#3A66B2] disabled:cursor-not-allowed disabled:bg-[#BAD5ED] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3A66B2]"
           >
-            Sign In
+            {isLoading ? "Signing in…" : "Sign In"}
           </button>
         </form>
 

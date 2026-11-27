@@ -8,6 +8,8 @@ interface PasswordInputProps {
   required?: boolean;
   enterKeyHint?: "done" | "next" | "go";
   ariaDescribedBy?: string;
+  value: string
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
 }
 
 export function PasswordInput({
@@ -18,6 +20,8 @@ export function PasswordInput({
   required = true,
   enterKeyHint = "done",
   ariaDescribedBy,
+  value,
+  onChange
 }: PasswordInputProps) {
   const [visible, setVisible] = useState(false);
 
@@ -32,6 +36,8 @@ export function PasswordInput({
         required={required}
         aria-describedby={ariaDescribedBy}
         placeholder={placeholder}
+        value={value}
+        onChange={onChange}
         className="w-full rounded-lg border border-[#DDE9F0] bg-[#FBFDFD] py-2.5 pl-3.5 pr-16 text-sm text-[#3C4044] placeholder:text-[#A1AEB8] transition-colors focus:border-[#5D8DD4] focus:outline-2 focus:outline-offset-0 focus:outline-[#BAD5ED]"
       />
       <button

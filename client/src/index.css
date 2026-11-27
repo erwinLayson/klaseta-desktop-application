@@ -33,6 +33,20 @@
   white-space: nowrap !important;
 }
 
+.auth-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: #BAD5ED transparent;
+}
+
+.auth-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.auth-scroll::-webkit-scrollbar-thumb {
+  border-radius: 9999px;
+  background-color: #BAD5ED;
+}
+
 
 @media (prefers-reduced-motion: no-preference) {
   html {
