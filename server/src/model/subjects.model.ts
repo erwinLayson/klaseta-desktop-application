@@ -9,9 +9,6 @@ type SubjectRowPacket = RowDataPacket & {
     code: string;
     description: string | null;
     units: number | null;
-    department: string | null;
-    teacher_id: number | null;
-    classroom_id: number | null;
 };
 
 /** Maps a raw database row to the camelCase `PublicSubject` shape. */
@@ -21,9 +18,6 @@ const toPublicSubject = (row: SubjectRowPacket): PublicSubject => ({
     code: row.code,
     description: row.description,
     units: row.units !== null ? Number(row.units) : null,
-    department: row.department,
-    teacherId: row.teacher_id,
-    classroomId: row.classroom_id,
 });
 
 const allowUpdateFields = [
@@ -31,9 +25,6 @@ const allowUpdateFields = [
     "code",
     "description",
     "units",
-    "department",
-    "teacher_id",
-    "classroom_id"
 ];
 
 /** Data-access layer for the `subjects` table; each instance works on one pooled connection. */
@@ -48,19 +39,16 @@ class Subjects {
      */
     async createSubject(subject: Subject): Promise<number> {
         try {
-            const { name, code, description, units, department, teacherId, classroomId } = subject;
+            const { name, code, description, units } = subject;
             const query = `
-                INSERT INTO subjects (name, code, description, units, department, teacher_id, classroom_id)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
+                INSERT INTO subjects (name, code, description, units)
+                VALUES (?, ?, ?, ?)
             `;
             const values = [
                 name,
                 code,
                 description ?? null,
                 units ?? null,
-                department ?? null,
-                teacherId ?? null,
-                classroomId ?? null,
             ];
             const [result] = await this.connection.execute<ResultSetHeader>(query, values);
             return result.insertId;
@@ -73,7 +61,7 @@ class Subjects {
     async findAll(): Promise<PublicSubject[]> {
         try {
             const [rows] = await this.connection.execute<SubjectRowPacket[]>(
-                `SELECT id, name, code, description, units, department, teacher_id, classroom_id FROM subjects ORDER BY id`
+                `SELECT id, name, code, description, units FROM subjects ORDER BY id`
             );
             return rows.map(toPublicSubject);
         } catch (err: any) {
@@ -88,7 +76,7 @@ class Subjects {
     async findById(id: number): Promise<PublicSubject | null> {
         try {
             const [rows] = await this.connection.execute<SubjectRowPacket[]>(
-                `SELECT id, name, code, description, units, department, teacher_id, classroom_id FROM subjects WHERE id = ?`,
+                `SELECT id, name, code, description, units FROM subjects WHERE id = ?`,
                 [id]
             );
             const row = rows[0];
@@ -105,7 +93,7 @@ class Subjects {
     async findByCode(code: string): Promise<PublicSubject | null> {
         try {
             const [rows] = await this.connection.execute<SubjectRowPacket[]>(
-                `SELECT id, name, code, description, units, department, teacher_id, classroom_id FROM subjects WHERE code = ?`,
+                `SELECT id, name, code, description, units FROM subjects WHERE code = ?`,
                 [code]
             );
             const row = rows[0];
@@ -122,7 +110,7 @@ class Subjects {
     async findByTeacherId(teacherId: number): Promise<PublicSubject[]> {
         try {
             const [rows] = await this.connection.execute<SubjectRowPacket[]>(
-                `SELECT id, name, code, description, units, department, teacher_id, classroom_id FROM subjects WHERE teacher_id = ? ORDER BY id`,
+                `SELECT id, name, code, description FROM subjects WHERE teacher_id = ? ORDER BY id`,
                 [teacherId]
             );
             return rows.map(toPublicSubject);
@@ -138,7 +126,7 @@ class Subjects {
     async findByClassroomId(classroomId: number): Promise<PublicSubject[]> {
         try {
             const [rows] = await this.connection.execute<SubjectRowPacket[]>(
-                `SELECT id, name, code, description, units, department, teacher_id, classroom_id FROM subjects WHERE classroom_id = ? ORDER BY id`,
+                `SELECT id, name, code, units FROM subjects WHERE classroom_id = ? ORDER BY id`,
                 [classroomId]
             );
             return rows.map(toPublicSubject);

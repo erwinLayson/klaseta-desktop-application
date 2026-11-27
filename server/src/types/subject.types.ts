@@ -4,9 +4,6 @@ export type Subject = {
     code: string;
     description?: string | null;
     units?: number | null;
-    department?: string | null;
-    teacherId?: number | null;
-    classroomId?: number | null;
 };
 
 /** Stored subject record including database identifiers. */
@@ -21,9 +18,6 @@ export type PublicSubject = {
     code: string;
     description: string | null;
     units: number | null;
-    department: string | null;
-    teacherId: number | null;
-    classroomId: number | null;
 };
 
 /** Partial set of subject fields that may be updated. */
@@ -32,7 +26,4 @@ export type SubjectUpdate = {
     code?: string;
     description?: string | null;
     units?: number | null;
-    department?: string | null;
-    teacherId?: number | null;
-    classroomId?: number | null;
 };
