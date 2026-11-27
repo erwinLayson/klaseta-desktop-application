@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { useScrollReveal } from "../../hooks/useScrollReveal";
 
 export function CtaSection() {
@@ -31,18 +32,18 @@ export function CtaSection() {
               subject catalogs in one dependable workspace.
             </p>
             <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
-              <a
-                href="#features"
+              <Link
+                to="/register"
                 className="inline-flex items-center justify-center rounded-lg bg-[#5D8DD4] px-6 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#3A66B2] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3A66B2]"
               >
-                Explore Features
-              </a>
-              <a
-                href="#preview"
+                Create Account
+              </Link>
+              <Link
+                to="/login"
                 className="inline-flex items-center justify-center rounded-lg border border-[#BAD5ED] bg-[#FBFDFD] px-6 py-3 text-sm font-semibold text-[#3A66B2] transition-colors hover:bg-[#FBFDFD]/80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#5D8DD4]"
               >
-                View Directory Preview
-              </a>
+                Sign In
+              </Link>
             </div>
           </div>
         </div>

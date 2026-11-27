@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 export function HeroSection() {
   return (
     <section className="relative overflow-hidden bg-[#FBFDFD] px-6 pb-20 pt-14 md:pb-28 md:pt-20">
@@ -33,8 +35,8 @@ export function HeroSection() {
           </p>
 
           <div className="flex flex-wrap items-center gap-4 pt-2">
-            <a
-              href="#get-started"
+            <Link
+              to="/register"
               className="inline-flex items-center justify-center rounded-lg bg-[#5D8DD4] px-6 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#3A66B2] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3A66B2]"
             >
               Get Started
@@ -52,7 +54,7 @@ export function HeroSection() {
                   d="M13 7l5 5m0 0l-5 5m5-5H6"
                 />
               </svg>
-            </a>
+            </Link>
 
             <a
               href="#how-it-works"

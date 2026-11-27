@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 const NAV_LINKS = [
   { label: "Features", href: "#features" },
@@ -50,18 +51,18 @@ export function Navbar() {
           </ul>
 
           <div className="hidden items-center gap-3 md:flex">
-            <a
-              href="#preview"
+            <Link
+              to="/login"
               className="rounded-lg px-4 py-2 text-sm font-medium text-[#3A66B2] transition-colors hover:bg-[#EBF6FB] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#5D8DD4]"
             >
-              Explore Workspace
-            </a>
-            <a
-              href="#get-started"
+              Sign In
+            </Link>
+            <Link
+              to="/register"
               className="rounded-lg bg-[#5D8DD4] px-4 py-2 text-sm font-semibold text-white shadow-xs transition-colors hover:bg-[#3A66B2] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3A66B2]"
             >
               Get Started
-            </a>
+            </Link>
           </div>
 
           <button
@@ -117,20 +118,20 @@ export function Navbar() {
             ))}
           </ul>
           <div className="mt-4 flex flex-col gap-2 border-t border-[#DDE9F0] pt-4">
-            <a
-              href="#preview"
+            <Link
+              to="/login"
               onClick={() => setMobileOpen(false)}
               className="block rounded-lg border border-[#DDE9F0] px-4 py-2.5 text-center text-sm font-medium text-[#3A66B2] transition-colors hover:bg-[#EBF6FB]"
             >
-              Explore Workspace
-            </a>
-            <a
-              href="#get-started"
+              Sign In
+            </Link>
+            <Link
+              to="/register"
               onClick={() => setMobileOpen(false)}
               className="block rounded-lg bg-[#5D8DD4] px-4 py-2.5 text-center text-sm font-semibold text-white transition-colors hover:bg-[#3A66B2]"
             >
               Get Started
-            </a>
+            </Link>
           </div>
         </div>
       )}
