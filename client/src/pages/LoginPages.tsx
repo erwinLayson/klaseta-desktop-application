@@ -1,3 +1,4 @@
+import { NavLink } from "react-router-dom"
 import {LoginPagesService} from "../services/Login.service"
 import "../styles/Loginpages.css"
 
@@ -7,18 +8,19 @@ export function LoginPages() {
         loading: isSigningIn
     } = LoginPagesService();
     return(
-        <div className="flex h-screen w-full justify-center items-center">
+        <div className="flex min-h-screen w-full justify-center items-center p-4">
             <form 
                 onSubmit={handleLoginSubmit}
-                className="grid gap-4"
+                className="login-card grid gap-5 w-full max-w-lg"
             >
                 <div className="login-header block text-center">
                     <h1>Sign In</h1>
+                    <p className="login-subtitle">Welcome back! Please enter your details.</p>
                 </div>
 
                 <div className="login-field">
                     <label className="login-label" htmlFor="email">Email</label>
-                    <input className="login-input" type="email" name="email" placeholder="email" id="@email.example"/>
+                    <input className="login-input" type="email" name="email" placeholder="email" id="email"/>
                 </div>
 
                 <div className="login-field">
@@ -44,6 +46,12 @@ export function LoginPages() {
                             <p>Sign In</p>
                         )}
                     </button>
+                </div>
+
+                <div className="block text-center">
+                    <NavLink className="login-switch-link" to="/register">
+                        Don't have an account? Sign up
+                    </NavLink>
                 </div>
             </form>
         </div>

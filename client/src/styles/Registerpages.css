@@ -1,0 +1,140 @@
+.register-header {
+  color: #334155;
+  font-size: 2.5rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  animation: register-field-enter 500ms ease-out both;
+}
+
+.register-field {
+  display: grid;
+  gap: 0.45rem;
+  animation: register-field-enter 500ms ease-out both;
+}
+
+.register-field:nth-of-type(2) {
+  animation-delay: 60ms;
+}
+
+.register-field:nth-of-type(3) {
+  animation-delay: 120ms;
+}
+
+.register-field:nth-of-type(4) {
+  animation-delay: 180ms;
+}
+
+.register-field:nth-of-type(5) {
+  animation-delay: 240ms;
+}
+
+.register-field:nth-of-type(6) {
+  animation-delay: 300ms;
+}
+
+.register-label {
+  color: #334155;
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.register-input {
+  width: 100%;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.65rem;
+  background-color: #fff;
+  padding: 0.75rem 0.9rem;
+  color: #0f172a;
+  outline: none;
+  transition: border-color 180ms ease, box-shadow 180ms ease, background-color 180ms ease;
+}
+
+.register-input::placeholder {
+  color: #94a3b8;
+}
+
+.register-input:hover {
+  border-color: #94a3b8;
+  background-color: #f8fafc;
+}
+
+.register-input:focus {
+  border-color: #4f46e5;
+  background-color: #fff;
+  box-shadow: 0 0 0 3px rgb(79 70 229 / 16%);
+}
+
+.register-button {
+  width: 100%;
+  border: 0;
+  border-radius: 0.65rem;
+  background: linear-gradient(135deg, #4f46e5, #4338ca);
+  padding: 0.75rem 1.5rem;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgb(67 56 202 / 20%);
+  transition: transform 180ms ease, box-shadow 180ms ease, filter 180ms ease;
+  animation: register-field-enter 500ms 420ms ease-out both;
+}
+
+.register-button:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.08);
+  box-shadow: 0 8px 18px rgb(67 56 202 / 28%);
+}
+
+.register-button:active {
+  transform: translateY(0);
+  box-shadow: 0 3px 8px rgb(67 56 202 / 20%);
+}
+
+.register-button:focus-visible {
+  outline: 3px solid rgb(79 70 229 / 35%);
+  outline-offset: 3px;
+}
+
+.register-switch-link {
+  display: inline-block;
+  color: #4f46e5;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 180ms ease;
+}
+
+.register-switch-link:hover {
+  color: #4338ca;
+  text-decoration: underline;
+}
+
+.register-switch-link:focus-visible {
+  outline: 3px solid rgb(79 70 229 / 35%);
+  outline-offset: 3px;
+}
+
+@keyframes register-field-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .register-header,
+  .register-field,
+  .register-button {
+    animation: none;
+  }
+
+  .register-input,
+  .register-button {
+    transition: none;
+  }
+}

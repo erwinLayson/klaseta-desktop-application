@@ -19,6 +19,12 @@ export function LoginPagesService() {
             password: data.get("password")
         } as LoginCredentials;
 
+        for(const [key, value] of Object.entries(credential)) {
+            if (typeof value !== "string" || value.trim() === "") {
+                throw new Error(`Invalid ${key}`);
+            }
+        }
+
         setLoading(true);
         try {
             const response = await api.post('auth/users/login', credential)
