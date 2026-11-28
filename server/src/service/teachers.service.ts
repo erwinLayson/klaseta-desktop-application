@@ -59,16 +59,15 @@ class TeachersService {
 
     /** Ensures a create payload has the teacher name and credentials needed for the user account. */
     private validateCreate(teacher: Teacher): void {
-        if (!teacher ||
-            !isNonEmptyString(teacher.firstname) ||
-            typeof teacher.middlename !== "string" ||
-            !isNonEmptyString(teacher.lastname) ||
-            !isNonEmptyString(teacher.email) ||
-            !isNonEmptyString(teacher.username) ||
-            !isNonEmptyString(teacher.password)) {
-            throw new RequestError("firstname, middlename, lastname, email, username and password are required");
+        if (!teacher || typeof teacher !== "object") {
+            throw new RequestError("Bad request");
         }
-        this.validateDepartment(teacher.department);
+
+        for (const [key, value] of Object.entries(teacher)) {
+            if (!isNonEmptyString(value)) {
+                throw new RequestError(`Invalid ${key}`);
+            }
+        }
     }
 
     /** Ensures an update payload only contains valid user ids and departments. */
@@ -98,8 +97,6 @@ class TeachersService {
         this.validateCreate(teacher);
 
         return this.withTransaction(async (teachers) => {
-
-
             if (await UserService.findByEmail(teacher.email)) {
                 throw new HttpError(409, "A user with this email already exists");
             }

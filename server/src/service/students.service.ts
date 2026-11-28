@@ -69,20 +69,15 @@ class StudentsService {
 
     /** Ensures a create payload has the student name and credentials needed for the user account. */
     private validateCreate(student: Student): void {
-        if (
-            !student ||
-            !isNonEmptyString(student.firstname) ||
-            typeof student.middlename !== "string" ||
-            !isNonEmptyString(student.lastname) ||
-            !isNonEmptyString(student.email) ||
-            !isNonEmptyString(student.username) ||
-            !isNonEmptyString(student.password)
-        ) {
-            throw new RequestError("firstname, middlename, lastname, email, username and password are required");
+        if(typeof student !== "object" || student === null) {
+            throw new RequestError("Invalid student payload");
         }
-        this.validateOptionalString(student.gradeLevel, "gradeLevel");
-        this.validateOptionalString(student.section, "section");
-        this.validateOptionalString(student.lrn, "lrn");
+
+        for(const [key, value] of Object.entries(student)) {
+            if(!isNonEmptyString(value)) {
+                throw new RequestError(`Invalid ${key}`);
+            }
+        }
     }
 
     /** Ensures an update payload only contains valid user ids and string fields. */
