@@ -1,5 +1,5 @@
 import type { Request, Response, NextFunction } from "express";
-import * as authService from "../service/auth.service.js";
+import authService from "../service/auth.service.js";
 import type { User } from "../types/user.types.js";
 
 import jwt from "jsonwebtoken";
@@ -8,15 +8,29 @@ import isValidEnv from "../helper/isValidEnv.js";
 // Helper function to parse and validate the user payload
 import { normalizeString } from "../helper/normalizeString.js";
 
+
+function validateUserPayload(payload: Omit<User, "id" | "role" | "username">): void {
+    if (!payload || typeof payload !== "object") {
+        throw new Error("Invalid payload");
+    }
+
+    for (const [key, value] of Object.entries(payload)) {
+        if (typeof value !== "string" || value.trim() === "") {
+            throw new Error(`Invalid ${key}`);
+        }
+    }
+}
+
 /** POST /login - Authenticates credentials and attaches the user to the request. */
 export const authLogin = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-        const { email, password } = req.body as Omit<User, "id" | "role" | "username">;
+        const { email, password } = req.body as Omit<User, "id" | "role" | "username">;        
+        validateUserPayload({ email, password });
 
         const user = await authService.authLogin(
             {
-                email: normalizeString(email),
-                password: String(password)
+                email,
+                password
             }
         );
 
