@@ -1,9 +1,17 @@
+import {LoginPagesService} from "../services/Login.service"
 import "../styles/Loginpages.css"
 
 export function LoginPages() {
+    const {
+        handleLoginSubmit,
+        loading: isSigningIn
+    } = LoginPagesService();
     return(
         <div className="flex h-screen w-full justify-center items-center">
-            <form className="grid gap-4">
+            <form 
+                onSubmit={handleLoginSubmit}
+                className="grid gap-4"
+            >
                 <div className="login-header block text-center">
                     <h1>Sign In</h1>
                 </div>
@@ -25,8 +33,16 @@ export function LoginPages() {
                 </div>
 
                 <div className="block text-center">
-                    <button className="login-button" type="submit">
-                        Sign In
+                    <button 
+                    className="login-button" 
+                    type={
+                        isSigningIn ? "button" : "submit"
+                    }>
+                        {isSigningIn ? (
+                            <p>Signing In</p>
+                        ) : (
+                            <p>Sign In</p>
+                        )}
                     </button>
                 </div>
             </form>
