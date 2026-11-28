@@ -1,0 +1,108 @@
+.login-field {
+  display: grid;
+  gap: 0.45rem;
+  animation: login-field-enter 500ms ease-out both;
+}
+
+.login-field:nth-of-type(2) {
+  animation-delay: 80ms;
+}
+
+.login-field:nth-of-type(3) {
+  animation-delay: 160ms;
+}
+
+.login-header {
+  color: #334155;
+  font-size: 2.5rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+.login-label {
+  color: #334155;
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.login-input {
+  width: 100%;
+  min-width: 17rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.65rem;
+  background-color: #fff;
+  padding: 0.75rem 0.9rem;
+  color: #0f172a;
+  outline: none;
+  transition: border-color 180ms ease, box-shadow 180ms ease, background-color 180ms ease;
+}
+
+.login-input::placeholder {
+  color: #94a3b8;
+}
+
+.login-input:hover {
+  border-color: #94a3b8;
+  background-color: #f8fafc;
+}
+
+.login-input:focus {
+  border-color: #4f46e5;
+  background-color: #fff;
+  box-shadow: 0 0 0 3px rgb(79 70 229 / 16%);
+}
+
+.login-button {
+  width: 100%;
+  border: 0;
+  border-radius: 0.65rem;
+  background: linear-gradient(135deg, #4f46e5, #4338ca);
+  padding: 0.75rem 1.5rem;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgb(67 56 202 / 20%);
+  transition: transform 180ms ease, box-shadow 180ms ease, filter 180ms ease;
+  animation: login-field-enter 500ms 240ms ease-out both;
+}
+
+.login-button:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.08);
+  box-shadow: 0 8px 18px rgb(67 56 202 / 28%);
+}
+
+.login-button:active {
+  transform: translateY(0);
+  box-shadow: 0 3px 8px rgb(67 56 202 / 20%);
+}
+
+.login-button:focus-visible {
+  outline: 3px solid rgb(79 70 229 / 35%);
+  outline-offset: 3px;
+}
+
+@keyframes login-field-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .login-field,
+  .login-button {
+    animation: none;
+  }
+
+  .login-input,
+  .login-button {
+    transition: none;
+  }
+}
