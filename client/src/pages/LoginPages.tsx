@@ -17,8 +17,8 @@ export function LoginPages() {
                 </div>
 
                 <div className="login-field">
-                    <label className="login-label" htmlFor="username">Username</label>
-                    <input className="login-input" type="text" name="username" placeholder="Username" id="username"/>
+                    <label className="login-label" htmlFor="email">Email</label>
+                    <input className="login-input" type="email" name="email" placeholder="email" id="@email.example"/>
                 </div>
 
                 <div className="login-field">

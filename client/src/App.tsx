@@ -3,7 +3,7 @@ import {
   Routes, 
   Route,
 } from 'react-router-dom'
-
+import "./utils/ErrorInterceptor"
 
 import {
   LoginPages

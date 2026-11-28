@@ -5,9 +5,6 @@ import type { User } from "../types/user.types.js";
 import jwt from "jsonwebtoken";
 import isValidEnv from "../helper/isValidEnv.js";
 
-// Helper function to parse and validate the user payload
-import { normalizeString } from "../helper/normalizeString.js";
-
 
 function validateUserPayload(payload: Omit<User, "id" | "role" | "username">): void {
     if (!payload || typeof payload !== "object") {
@@ -15,6 +12,7 @@ function validateUserPayload(payload: Omit<User, "id" | "role" | "username">): v
     }
 
     for (const [key, value] of Object.entries(payload)) {
+        console.log("Validating", key, "with value:", value);
         if (typeof value !== "string" || value.trim() === "") {
             throw new Error(`Invalid ${key}`);
         }

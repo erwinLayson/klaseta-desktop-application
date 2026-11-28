@@ -2,7 +2,7 @@ import { useState } from "react";
 import { api } from "../api/fetchData";
 
 type LoginCredentials = {
-    username: string;
+    email: string;
     password: string;
 }
 
@@ -15,7 +15,7 @@ export function LoginPagesService() {
         const data = new FormData(event.currentTarget);
 
         const credential = {
-            username: data.get("username"),
+            email: data.get("email"),
             password: data.get("password")
         } as LoginCredentials;
 
